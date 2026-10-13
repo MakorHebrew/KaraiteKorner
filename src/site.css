@@ -225,7 +225,49 @@ main font[size="-2"] { font-size: 0.8rem; }
 main pre,
 main blockquote { overflow-x: auto; }
 
-.pagefind-ui { --pagefind-ui-scale: 0.95; }
+.page-search input {
+  width: 100%;
+  font: inherit;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 1rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+}
+
+#search-status {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+#search-results {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+}
+
+#search-results li {
+  margin: 1.1rem 0 0;
+}
+
+#search-results a {
+  font-weight: 650;
+}
+
+.snippet {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+mark {
+  background: #f3e2a8;
+  color: inherit;
+  padding: 0 0.1em;
+}
 
 @media (max-width: 640px) {
   body { font-size: 1.05rem; }

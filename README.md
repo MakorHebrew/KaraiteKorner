@@ -11,7 +11,7 @@ npm ci
 npm run build
 ```
 
-`npm run build` reads `content/raw`, writes the site to `dist/`, and builds a static search index. Open `dist/index.html` in a browser, or serve the folder:
+`npm run build` reads `content/raw`, writes the site to `dist/`, and writes `search-index.json`. Search loads that file in the browser and looks up the query there. Open `dist/index.html` in a browser, or serve the folder:
 
 ```bash
 npx --yes serve dist
