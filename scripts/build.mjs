@@ -392,21 +392,42 @@ ${html}`;
 
 function renderSearch() {
   const body = `<h1>Search</h1>
-<div id="search"></div>
-<script src="pagefind/pagefind-ui.js"></script>
-<script>
-  const ui = new PagefindUI({ element: "#search", bundlePath: "pagefind/", showSubResults: true });
-  const query = new URLSearchParams(location.search).get("q");
-  if (query) ui.triggerSearch(query);
-</script>`;
+<form class="page-search" action="search.html" method="get" role="search">
+  <label class="visually-hidden" for="search-query">Search the archive</label>
+  <input id="search-query" name="q" type="search" placeholder="Search the archive" autocomplete="off">
+</form>
+<p id="search-status">Loading the index…</p>
+<ul id="search-results"></ul>
+<script src="search.js"></script>`;
   return shell({
     title: "Search — Karaite Korner",
     description: "Search the Karaite Korner archive.",
     body,
     rel: "search.html",
     ignore: true,
-    extraHead: '<link rel="stylesheet" href="pagefind/pagefind-ui.css">',
   });
+}
+
+async function writeSearchIndex(pages) {
+  const entries = [];
+  for (const page of pages) {
+    const html = await readFile(path.join(DIST, page.rel), "utf8");
+    if (html.includes('data-pagefind-ignore="all"')) continue;
+    const $ = load(html);
+    $("main").find("p, div, li, h1, h2, h3, h4, tr, br, dd, dt, blockquote, center").each((_, el) => {
+      $(el).prepend(" ");
+    });
+    const text = $("main").text().replace(/\s+/g, " ").trim();
+    if (text.length < 40) continue;
+    entries.push({
+      title: (page.title || page.rel).replace(/\s+/g, " ").trim(),
+      url: page.rel,
+      text: text.slice(0, 80000),
+    });
+  }
+  const json = JSON.stringify(entries);
+  await writeFile(path.join(DIST, "search-index.json"), json);
+  console.log(`Search index: ${entries.length} pages, ${json.length} bytes`);
 }
 
 function renderRedirect(rel, target) {
@@ -470,6 +491,8 @@ async function main() {
 
   await writePage("archive.html", renderArchive(pages, files));
   await writePage("search.html", renderSearch());
+  await writeSearchIndex(pages);
+  await copyFile(path.join(ROOT, "src", "search.js"), path.join(DIST, "search.js"));
 
   for (const [urlPath, target] of Object.entries(redirects)) {
     const rel = urlPath.replace(/^\/+/, "");
